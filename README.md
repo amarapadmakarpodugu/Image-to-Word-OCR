@@ -25,4 +25,4 @@ Make sure Python is installed on your computer.
 Install the required Python packages:
 
 ```bash
-pip install python-docx pytesseract Pillow
+pip install requirements.txt

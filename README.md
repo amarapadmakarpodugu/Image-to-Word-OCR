@@ -1,5 +1,4 @@
 # Image-to-Word-OCR
-# Image-to-Word-OCR
 
 A simple Python application that extracts text from an image using Optical Character Recognition (OCR) and converts it into an editable Microsoft Word document.
 

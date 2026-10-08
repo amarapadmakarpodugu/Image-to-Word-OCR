@@ -1,36 +1,62 @@
 from docx import Document
 import pytesseract as pa
-from PIL import Image
 import os
+import cv2
 
-# Ask the user for the image file
-image_path = input("Enter the image file path: ")
-
-# Check if the image exists
-if not os.path.exists(image_path):
-    print("Image file not found!")
-    exit()
-
-# Set Tesseract path
-# Change this only if Tesseract is installed in a different location
+# Tesseract OCR path
 pa.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
-# Extract text from image
-text = pa.image_to_string(Image.open(image_path))
+# Get image name and type
+iname = input("Enter name of the image: ")
+itype = input("Enter (JPG/PNG): ")
+
+iname = iname + "." + itype.lower()
+
+# Read image
+image1 = cv2.imread(iname)
+
+# Check whether image exists
+if image1 is None:
+    print("Image not found! Check the image name and extension.")
+    exit()
+
+# Convert image to grayscale
+gray = cv2.cvtColor(image1, cv2.COLOR_BGR2GRAY)
+
+# Upscale image
+large = cv2.resize(gray, None, fx=2, fy=2)
+
+# Remove noise
+clear = cv2.GaussianBlur(large, (3, 3), 0)
+
+# Convert image to black and white using Otsu thresholding
+value, result = cv2.threshold(
+    clear,
+    0,
+    255,
+    cv2.THRESH_BINARY + cv2.THRESH_OTSU
+)
+
+# Perform OCR
+text = pa.image_to_string(result, lang="tel+eng")
 
 # Create Word document
 doc = Document()
+doc.add_paragraph(text)
 
-for line in text.split("\n"):
-    doc.add_paragraph(line)
+# Get document name
+while True:
+    name = input("Enter name of the document: ")
+    name = name + ".docx"
 
-# Save Word document
-output_file = "AUTOWRITE.docx"
-doc.save(output_file)
+    if os.path.exists(name):
+        print("Name already exists! Enter another name.")
+    else:
+        doc.save(name)
+        break
 
-# Check if document was created
-if os.path.exists(output_file):
+# Confirm saving
+if os.path.exists(name):
     print("Document saved successfully!")
-    print("File:", output_file)
 else:
     print("Document was not saved!")
